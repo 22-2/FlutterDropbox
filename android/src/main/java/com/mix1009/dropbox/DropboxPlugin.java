@@ -439,18 +439,25 @@ public class DropboxPlugin implements FlutterPlugin, MethodCallHandler, Activity
           return e.getMessage();
         } catch (IOException e) {
           e.printStackTrace();
+          return e.getMessage();
         } catch (DbxException e) {
-        e.printStackTrace();
-        return e.getMessage();
+          e.printStackTrace();
+          return e.getMessage();
         }
 
       return "";
     }
 
     @Override
-    protected void onPostExecute(String r) {
-      super.onPostExecute(r);
-      result.success(paths);
+    protected void onPostExecute(String errorMessage) {
+      super.onPostExecute(errorMessage);
+      if (errorMessage == "" || errorMessage == null) {
+        result.success(paths);
+      } else if (errorMessage.startsWith("Unable to resolve host")) {
+        result.error("DbxException", errorMessage, null);
+      } else if (errorMessage.contains("not_found")) {
+        result.error("FileNotFoundException", errorMessage, null);
+      }
     }
 
   }
@@ -504,9 +511,9 @@ public class DropboxPlugin implements FlutterPlugin, MethodCallHandler, Activity
       } catch (FileNotFoundException e) {
         e.printStackTrace();
         return e.getMessage();
-
       } catch (IOException e) {
         e.printStackTrace();
+        return e.getMessage();
       } catch (DbxException e) {
         e.printStackTrace();
         return e.getMessage();
@@ -516,11 +523,16 @@ public class DropboxPlugin implements FlutterPlugin, MethodCallHandler, Activity
     }
 
       @Override
-    protected void onPostExecute(String r) {
-      super.onPostExecute(r);
-      result.success(paths);
+    protected void onPostExecute(String errorMessage) {
+      super.onPostExecute(errorMessage);
+      if (errorMessage == "" || errorMessage == null) {
+        result.success(paths);
+      } else if (errorMessage.startsWith("Unable to resolve host")) {
+        result.error("DbxException", errorMessage, null);
+      } else if (errorMessage.contains("not_found")) {
+        result.error("FileNotFoundException", errorMessage, null);
+      }
     }
 
   }
 }
-
